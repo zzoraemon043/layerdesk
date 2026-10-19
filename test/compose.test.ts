@@ -101,4 +101,28 @@ describe('composeDocument', () => {
     expect(pixelAt(second, 1, 1)[3]).toBe(0);
     expect(pixelAt(second, 11, 11)).toEqual([0, 0, 255, 255]);
   });
+
+  it('renders groups and masks away from the origin and clipped to the canvas', () => {
+    const inner = testLayer('inner', 15, 15, 10, 10, [255, 0, 0, 255]);
+    const group = { ...createGroup('g', [inner]), blendMode: 'normal' as const };
+    const maskSurface = surfaceFromPixels(2, 2, solidPixels(2, 2, [0, 0, 0, 255]));
+    const masked = testLayer('masked', 4, 4, 6, 6, [0, 0, 255, 255], {
+      mask: { left: 5, top: 5, width: 2, height: 2, defaultColor: 0, disabled: false, surface: maskSurface },
+    });
+    const surface = composeDocument(testDocument([group, masked]));
+    expect(pixelAt(surface, 17, 17)).toEqual([255, 0, 0, 255]);
+    expect(pixelAt(surface, 14, 14)[3]).toBe(0);
+    expect(pixelAt(surface, 5, 5)).toEqual([0, 0, 255, 255]);
+    expect(pixelAt(surface, 4, 4)[3]).toBe(0);
+    expect(pixelAt(surface, 8, 8)[3]).toBe(0);
+  });
+
+  it('clips a layer that sits inside a translated group', () => {
+    const base = testLayer('base', 10, 10, 4, 4, [0, 0, 255, 255]);
+    const clipped = testLayer('clipped', 8, 8, 10, 10, [0, 255, 0, 255], { clipping: true });
+    const group = { ...createGroup('g', [base, clipped]), blendMode: 'normal' as const, opacity: 1 };
+    const surface = composeDocument(testDocument([group]));
+    expect(pixelAt(surface, 11, 11)).toEqual([0, 255, 0, 255]);
+    expect(pixelAt(surface, 9, 9)[3]).toBe(0);
+  });
 });

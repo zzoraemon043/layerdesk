@@ -6,7 +6,9 @@ layerdesk is an offline-first layer editor for PSD files that runs entirely in t
 
 [繁體中文](#繁體中文) | [English](#english)
 
-> Status: early development. The design is in [docs/spec.md](docs/spec.md).
+**Try it: https://zzoraemon043.github.io/layerdesk/**
+
+> Status: first release. The design is in [docs/spec.md](docs/spec.md).
 
 ---
 
@@ -18,7 +20,7 @@ Small fixes to a layered artwork, such as nudging an arm, renaming parts or hidi
 
 It is also built for people who cut artwork into parts for rigging. Before you import a PSD into Live2D Cubism or Spine, the check panel lists layers with blend modes, clipping masks, effects or names that the rigging tool will not handle the way you expect.
 
-### Planned features
+### Features
 
 - Open PSD files by drag and drop and show the full layer tree with thumbnails
 - Move layers by dragging, and scale or rotate them with transform handles
@@ -30,9 +32,22 @@ It is also built for people who cut artwork into parts for rigging. Before you i
 - Installable as a PWA and fully usable offline
 - Interface in Traditional Chinese and English
 
-### Not planned for the first release
+### Limitations
 
-Painting, selections, filters and text editing.
+- Painting, selections, filters and text editing are not part of the first release.
+- Layer effects, adjustment layers, smart object contents and text are shown from the pixels stored in the file and are not re-rendered.
+- Files with 16 or 32 bits per channel, or not in RGB mode, can be viewed, edited and exported to PNG, but not saved back as PSD.
+- A layer that is scaled or rotated is saved as a plain pixel layer. If it was a text, smart object or shape layer, layerdesk asks before saving.
+
+### Development
+
+```
+npm install
+npm run dev
+npm test
+npm run test:e2e
+npm run build
+```
 
 ### License
 
@@ -46,6 +61,8 @@ layerdesk is an independent project and is not affiliated with Adobe, Live2D or 
 
 **打開 PSD，拖動圖層，存回去。離線，在瀏覽器裡完成。**
 
+**線上試用：https://zzoraemon043.github.io/layerdesk/**
+
 layerdesk 是完全在瀏覽器中執行、離線優先的 PSD 圖層編輯器。把 PSD 拖進來就能看到所有圖層，可以移動、縮放、旋轉、隱藏、調整順序、建立群組，再存回 PSD 或匯出 PNG。檢查面板會列出匯入 Live2D Cubism 或 Spine 時容易出問題的圖層。
 
 ### 為什麼需要它
@@ -54,7 +71,7 @@ layerdesk 是完全在瀏覽器中執行、離線優先的 PSD 圖層編輯器�
 
 它也是為拆件的人設計的。把 PSD 匯入 Live2D Cubism 或 Spine 之前，檢查面板會列出混合模式、剪裁遮色片、圖層樣式或名稱可能不會照你預期處理的圖層。
 
-### 規劃中的功能
+### 功能
 
 - 拖放開啟 PSD，顯示完整圖層樹與縮圖
 - 拖曳移動圖層，用變形控制點縮放、旋轉
@@ -66,9 +83,22 @@ layerdesk 是完全在瀏覽器中執行、離線優先的 PSD 圖層編輯器�
 - 可安裝為 PWA，完全離線使用
 - 繁體中文與英文介面
 
-### 第一版不包含
+### 限制
 
-畫筆、選取範圍、濾鏡、文字編輯。
+- 第一版不包含畫筆、選取範圍、濾鏡、文字編輯。
+- 圖層樣式、調整圖層、智慧型物件內容與文字，會以檔案內儲存的像素顯示，不會重新計算。
+- 每色版 16 或 32 位元、或不是 RGB 模式的檔案，可以檢視、編輯、匯出 PNG，但不能存回 PSD。
+- 縮放或旋轉過的圖層會存成一般點陣圖層；如果原本是文字、智慧型物件或形狀圖層，儲存前會先詢問。
+
+### 開發
+
+```
+npm install
+npm run dev
+npm test
+npm run test:e2e
+npm run build
+```
 
 ### 授權
 

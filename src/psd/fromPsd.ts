@@ -6,14 +6,24 @@ import { grayToAlpha, toEightBit } from './pixels';
 
 const rgbColorMode = 3;
 
+function hasVisiblePixels(data: ArrayLike<number>): boolean {
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] !== 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function documentFromPsd(psd: Psd, fileName: string): LayerDocument {
   const { children = [], imageData, ...source } = psd;
+  const compositePixels = imageData ? toEightBit(imageData) : null;
   return {
     width: psd.width,
     height: psd.height,
     children: children.map(nodeFromPsdLayer),
     source,
-    storedComposite: imageData ? surfaceFromPixels(imageData.width, imageData.height, toEightBit(imageData)) : null,
+    storedComposite: imageData && compositePixels && hasVisiblePixels(compositePixels) ? surfaceFromPixels(imageData.width, imageData.height, compositePixels) : null,
     fileName,
   };
 }

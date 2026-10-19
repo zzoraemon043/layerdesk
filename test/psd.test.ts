@@ -32,6 +32,12 @@ describe('reading', () => {
     expect(readOnlyReason({ ...document, source: { ...document.source, colorMode: 4 } })).toBe('color-mode');
   });
 
+  it('ignores a stored preview that is fully transparent', () => {
+    const psd = samplePsd();
+    psd.imageData = { width: 64, height: 48, data: new Uint8ClampedArray(64 * 48 * 4) };
+    expect(sampleDocument(psd).storedComposite).toBeNull();
+  });
+
   it('reads empty layers without pixels', () => {
     const psd = samplePsd();
     psd.children!.push({ name: 'empty' });
