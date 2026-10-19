@@ -117,3 +117,18 @@ function psdLayerFromNode(node: LayerNode, report: SaveReport): PsdLayer {
   }
   return target;
 }
+
+export function layersToRasterize(document: LayerDocument): string[] {
+  const names: string[] = [];
+  const visit = (nodes: LayerNode[]) => {
+    for (const node of nodes) {
+      if (node.kind === 'group') {
+        visit(node.children);
+      } else if (node.pixelsEdited && vectorKeys.some((key) => node.source[key] !== undefined)) {
+        names.push(node.name);
+      }
+    }
+  };
+  visit(document.children);
+  return names;
+}
