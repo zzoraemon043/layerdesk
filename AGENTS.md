@@ -19,7 +19,7 @@ These rules apply to every contributor, human or automated.
 
 ## Commits and pull requests
 
-- Use Conventional Commits, for example `feat(canvas): drag selected layers`.
+- Write short commit messages in Traditional Chinese with a type prefix and a half-width colon: `新增:`, `修正:`, `優化:`, `文件:` or `測試:`, for example `修正:剪裁遮色片位置錯誤`. Keep the subject on one line.
 - Author and commit as the repository owner: `zzoraemon043 <195147269+zzoraemon043@users.noreply.github.com>`.
 - Do not add co-author trailers, tool attribution lines, session links or "generated with" footers.
 - Do not mention the tools used to write the code.
