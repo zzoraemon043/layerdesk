@@ -141,7 +141,11 @@ export function App() {
     if (editor.dirty && !(await ask(t('dialog.unsavedTitle'), t('dialog.unsavedBody'), t('dialog.continue')))) {
       return;
     }
-    loadDocument(documentFromPsd(samplePsd((key) => t(key)), t('sample.fileName')));
+    try {
+      loadDocument(documentFromPsd(await samplePsd((key) => t(key)), t('sample.fileName')));
+    } catch (error) {
+      setStatus({ tone: 'error', text: t('status.error', { message: error instanceof Error ? error.message : String(error) }) });
+    }
   }, [ask, editor.dirty, loadDocument, t]);
 
   const finalComposite = useCallback(() => (document ? compositor.render(document) : null), [compositor, document]);
@@ -382,7 +386,7 @@ export function App() {
     >
       <header className="toolbar">
         <div className="brand">
-          <img src="icon.svg" alt="" width={22} height={22} />
+          <img src="icon-192.png" alt="" width={22} height={22} />
           <span>layerdesk</span>
         </div>
         <div className="tool-group">
@@ -479,7 +483,7 @@ export function App() {
             </>
           ) : (
             <div className="empty-state">
-              <img src="icon.svg" alt="" width={72} height={72} />
+              <img src="icon-192.png" alt="" width={72} height={72} />
               <h1>layerdesk</h1>
               <p>{t('app.tagline')}</p>
               <div className="drop-target">

@@ -2,66 +2,82 @@ import type { Layer, Psd } from 'ag-psd';
 import type { MessageKey } from './i18n/messages';
 import { context2d, createSurface, pixelsOf } from './model/surface';
 
-type Draw = (context: CanvasRenderingContext2D) => void;
+const sampleWidth = 1024;
+const sampleHeight = 768;
 
-const sampleWidth = 512;
-const sampleHeight = 512;
+interface Placement {
+  file: string;
+  name: MessageKey;
+  left: number;
+  top: number;
+}
 
-function pixelLayer(name: string, left: number, top: number, width: number, height: number, draw: Draw, extra: Partial<Layer> = {}): Layer {
+const placements: Record<'background' | 'easel' | 'character' | 'cat', Placement> = {
+  background: { file: 'background.webp', name: 'sample.background', left: 0, top: 0 },
+  easel: { file: 'easel.webp', name: 'sample.easel', left: 110, top: 330 },
+  character: { file: 'character.webp', name: 'sample.character', left: 380, top: 220 },
+  cat: { file: 'cat.webp', name: 'sample.cat', left: 700, top: 540 },
+};
+
+async function loadImage(file: string): Promise<HTMLImageElement> {
+  const image = new Image();
+  image.src = `${import.meta.env.BASE_URL}sample/${file}`;
+  await image.decode();
+  return image;
+}
+
+async function imageLayer(placement: Placement, name: (key: MessageKey) => string): Promise<Layer> {
+  const image = await loadImage(placement.file);
+  const surface = createSurface(image.naturalWidth, image.naturalHeight);
+  context2d(surface).drawImage(image, 0, 0);
+  return {
+    name: name(placement.name),
+    left: placement.left,
+    top: placement.top,
+    right: placement.left + surface.width,
+    bottom: placement.top + surface.height,
+    imageData: pixelsOf(surface),
+  };
+}
+
+function drawnLayer(name: string, left: number, top: number, width: number, height: number, draw: (context: CanvasRenderingContext2D) => void, extra: Partial<Layer>): Layer {
   const surface = createSurface(width, height);
-  const context = context2d(surface);
-  draw(context);
+  draw(context2d(surface));
   return { name, left, top, right: left + width, bottom: top + height, imageData: pixelsOf(surface), ...extra };
 }
 
-function ellipse(color: string, width: number, height: number): Draw {
-  return (context) => {
-    context.fillStyle = color;
+function shadows(context: CanvasRenderingContext2D) {
+  context.fillStyle = '#3d4a3a';
+  for (const [x, y, radiusX, radiusY] of [
+    [205, 40, 110, 22],
+    [430, 40, 120, 26],
+    [690, 40, 70, 16],
+  ]) {
     context.beginPath();
-    context.ellipse(width / 2, height / 2, width / 2, height / 2, 0, 0, Math.PI * 2);
+    context.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2);
     context.fill();
-  };
+  }
 }
 
-function roundedRect(color: string, width: number, height: number, radius: number): Draw {
-  return (context) => {
-    context.fillStyle = color;
-    context.beginPath();
-    context.roundRect(0, 0, width, height, radius);
-    context.fill();
-  };
+function sketch(context: CanvasRenderingContext2D) {
+  context.strokeStyle = '#d0453a';
+  context.lineWidth = 3;
+  context.setLineDash([12, 8]);
+  context.strokeRect(6, 6, 348, 568);
 }
 
-export function samplePsd(name: (key: MessageKey) => string): Psd {
-  const background = pixelLayer(name('sample.background'), 0, 0, sampleWidth, sampleHeight, (context) => {
-    const gradient = context.createLinearGradient(0, 0, 0, sampleHeight);
-    gradient.addColorStop(0, '#dfe9f5');
-    gradient.addColorStop(1, '#f7efe3');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, sampleWidth, sampleHeight);
-  });
-  const shadow = pixelLayer(name('sample.shadow'), 156, 420, 200, 40, ellipse('#6b6f7a', 200, 40), { blendMode: 'multiply', opacity: 0.45 });
-  const body = pixelLayer(name('sample.body'), 196, 230, 120, 190, roundedRect('#3f7cc4', 120, 190, 36));
-  const armLeft = pixelLayer(name('sample.armLeft'), 150, 250, 44, 130, roundedRect('#f2c6a0', 44, 130, 22));
-  const armRight = pixelLayer(name('sample.armRight'), 318, 250, 44, 130, roundedRect('#f2c6a0', 44, 130, 22));
-  const head = pixelLayer(name('sample.head'), 186, 90, 140, 140, ellipse('#f2c6a0', 140, 140));
-  const sketch = pixelLayer(
-    name('sample.sketch'),
-    120,
-    60,
-    280,
-    400,
-    (context) => {
-      context.strokeStyle = '#d0453a';
-      context.lineWidth = 3;
-      context.strokeRect(10, 10, 260, 380);
-    },
-    { hidden: true },
-  );
-  const character: Layer = { name: name('sample.character'), opened: true, children: [armLeft, body, armRight, head] };
+export async function samplePsd(name: (key: MessageKey) => string): Promise<Psd> {
+  const [background, easel, character, cat] = await Promise.all([
+    imageLayer(placements.background, name),
+    imageLayer(placements.easel, name),
+    imageLayer(placements.character, name),
+    imageLayer(placements.cat, name),
+  ]);
+  const shadow = drawnLayer(name('sample.shadow'), 100, 680, 820, 80, shadows, { blendMode: 'multiply', opacity: 0.35 });
+  const guide = drawnLayer(name('sample.sketch'), 350, 180, 360, 580, sketch, { hidden: true });
   return {
     width: sampleWidth,
     height: sampleHeight,
-    children: [background, shadow, character, sketch],
+    children: [background, shadow, { name: name('sample.foreground'), opened: true, children: [easel, character, cat] }, guide],
   };
 }

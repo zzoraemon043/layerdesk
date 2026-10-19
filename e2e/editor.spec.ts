@@ -106,7 +106,7 @@ test('exports layers as a zip with a manifest', async ({ page }) => {
 test('opens the built-in sample and switches language', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('sample').click();
-  await expect(page.getByTestId('layer-row')).toHaveCount(8);
+  await expect(page.getByTestId('layer-row')).toHaveCount(7);
   await page.getByTestId('language').click();
   await expect(page.getByTestId('tab-layers')).toHaveText('圖層');
 });

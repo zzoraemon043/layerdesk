@@ -6,6 +6,8 @@ layerdesk is an offline-first layer editor for PSD files that runs entirely in t
 
 [繁體中文](#繁體中文) | [English](#english)
 
+![layerdesk editing the built-in sample](docs/screenshot.webp)
+
 **Try it: https://zzoraemon043.github.io/layerdesk/**
 
 > Status: first release. The design is in [docs/spec.md](docs/spec.md).

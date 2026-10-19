@@ -734,3 +734,8 @@ kbd {
     display: none;
   }
 }
+
+.compare .button {
+  white-space: normal;
+  text-align: left;
+}

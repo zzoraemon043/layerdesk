@@ -183,13 +183,12 @@ const en = {
   'status.unsaved': 'Unsaved changes',
   'sample.fileName': 'sample.psd',
   'sample.background': 'background',
-  'sample.character': 'character',
-  'sample.body': 'body',
-  'sample.head': 'head',
-  'sample.armLeft': 'arm left',
-  'sample.armRight': 'arm right',
+  'sample.foreground': 'foreground',
+  'sample.easel': 'easel',
+  'sample.character': 'painter',
+  'sample.cat': 'cat',
   'sample.shadow': 'shadow',
-  'sample.sketch': 'sketch',
+  'sample.sketch': 'layout guide',
 };
 
 export type MessageKey = keyof typeof en;
@@ -379,13 +378,12 @@ const zhTW: Record<MessageKey, string> = {
   'status.unsaved': '尚未儲存',
   'sample.fileName': '範例.psd',
   'sample.background': '背景',
-  'sample.character': '角色',
-  'sample.body': '身體',
-  'sample.head': '頭',
-  'sample.armLeft': '左手',
-  'sample.armRight': '右手',
+  'sample.foreground': '前景',
+  'sample.easel': '畫架',
+  'sample.character': '小畫家',
+  'sample.cat': '貓',
   'sample.shadow': '陰影',
-  'sample.sketch': '草稿',
+  'sample.sketch': '構圖參考線',
 };
 
 export type Language = 'zh-TW' | 'en';

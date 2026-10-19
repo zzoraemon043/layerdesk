@@ -32,7 +32,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'script',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['favicon.png'],
       manifest: {
         name: 'layerdesk',
         short_name: 'layerdesk',
@@ -44,11 +44,10 @@ export default defineConfig({
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' },
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,png,webp,webmanifest,md}'],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       },
     }),
