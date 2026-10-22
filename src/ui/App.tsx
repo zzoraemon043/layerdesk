@@ -22,16 +22,13 @@ import { Icon, type IconName } from './Icon';
 import { LayerPanel } from './LayerPanel';
 import { PropertiesPanel } from './PropertiesPanel';
 import { useEditor } from './useEditor';
+import { isTypingTarget } from './typingTarget';
 import { centered, fitViewport, zoomAround, type Size, type Viewport } from './viewport';
 
 type Tab = 'layers' | 'check' | 'history';
 type Status = { tone: 'idle' | 'busy' | 'error'; text: string };
 
 const largeFileBytes = 500 * 1024 * 1024;
-
-function isTypingTarget(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
-}
 
 function ToolButton({ icon, label, onClick, disabled, active, testId }: { icon: IconName; label: string; onClick(): void; disabled?: boolean; active?: boolean; testId?: string }) {
   return (

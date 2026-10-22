@@ -5,6 +5,7 @@ import type { LayerDocument, NodeId } from '../model/types';
 import { pickLayer } from '../render/hitTest';
 import { transformedCorners, type FreeTransform, type Point } from '../render/transform';
 import { dragMove, dragRotate, dragScale, pointInQuad, scaleHandles, type Axis } from '../render/transformHandles';
+import { isTypingTarget } from './typingTarget';
 import { documentToScreen, screenToDocument, zoomAround, type Size, type Viewport } from './viewport';
 
 interface CanvasViewProps {
@@ -35,10 +36,6 @@ type Gesture =
 
 const handleRadius = 6;
 const rotateReach = 28;
-
-function isTypingTarget(target: EventTarget | null): boolean {
-  return target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
-}
 
 function createCheckerPattern(context: CanvasRenderingContext2D): CanvasPattern | null {
   const tile = window.document.createElement('canvas');

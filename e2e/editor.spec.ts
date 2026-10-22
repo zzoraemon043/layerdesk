@@ -47,6 +47,23 @@ test('nudges with the keyboard and edits properties', async ({ page }) => {
   expect(torso).toMatchObject({ left: 61, top: 90, blendMode: 'screen', hidden: true });
 });
 
+test('keeps shortcuts working after the opacity slider is used', async ({ page }) => {
+  await openFixture(page);
+  await page.getByTestId('layer-row').filter({ hasText: 'torso' }).click();
+  const slider = page.locator('input[type="range"]');
+  const box = await slider.boundingBox();
+  if (!box) {
+    throw new Error('opacity slider is not visible');
+  }
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(slider).toBeFocused();
+  const opacity = await slider.inputValue();
+  await page.keyboard.press('ArrowRight');
+  await expect(slider).toHaveValue(opacity);
+  const torso = layerNamed(await save(page), 'torso');
+  expect(torso).toMatchObject({ left: 61 });
+});
+
 test('reorders layers by dragging rows', async ({ page }) => {
   await openFixture(page);
   await page.getByTestId('layer-row').filter({ hasText: 'paper' }).dragTo(page.getByTestId('layer-row').filter({ hasText: 'tone' }), { targetPosition: { x: 40, y: 2 } });
