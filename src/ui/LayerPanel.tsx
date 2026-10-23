@@ -39,6 +39,8 @@ function visibleRows(nodes: LayerNode[], depth: number, hiddenByParent: boolean)
   return rows;
 }
 
+const maxIndentDepth = 8;
+
 const Thumbnail = memo(function Thumbnail({ surface }: { surface: Surface | null }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -106,12 +108,13 @@ export function LayerPanel(props: LayerPanelProps) {
             <li
               key={node.id}
               role="treeitem"
+              aria-level={depth + 1}
               aria-selected={selected}
               aria-expanded={node.kind === 'group' ? node.opened : undefined}
               data-testid="layer-row"
               data-name={node.name}
               className={['layer-row', selected ? 'selected' : '', hiddenByParent || node.hidden ? 'dimmed' : '', marker].join(' ')}
-              style={{ paddingLeft: 6 + depth * 16 }}
+              style={{ paddingLeft: 6 + Math.min(depth, maxIndentDepth) * 16 }}
               draggable={editing !== node.id}
               onClick={(event) => onRowClick(event, node.id)}
               onDragStart={(event) => {
