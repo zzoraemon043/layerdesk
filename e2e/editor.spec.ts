@@ -64,6 +64,15 @@ test('keeps shortcuts working after the opacity slider is used', async ({ page }
   expect(torso).toMatchObject({ left: 61 });
 });
 
+test('keeps the layer list in place when a layer is selected', async ({ page }) => {
+  await openFixture(page);
+  const row = page.locator('[data-testid="layer-row"][data-name="face"]');
+  const before = await row.boundingBox();
+  await row.locator('.layer-name').dblclick();
+  expect((await row.boundingBox())?.y).toBe(before?.y);
+  await expect(row.locator('input.rename')).toBeFocused();
+});
+
 test('reorders layers by dragging rows', async ({ page }) => {
   await openFixture(page);
   await page.getByTestId('layer-row').filter({ hasText: 'paper' }).dragTo(page.getByTestId('layer-row').filter({ hasText: 'tone' }), { targetPosition: { x: 40, y: 2 } });

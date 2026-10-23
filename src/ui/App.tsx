@@ -501,19 +501,6 @@ export function App() {
         </section>
         {document ? (
           <aside className="sidebar">
-            <PropertiesPanel
-              document={document}
-              selection={selection}
-              onRename={(id, name) => setPatch('history.rename', [id], { name })}
-              onPosition={(dx, dy) => editor.apply(t('history.position'), (current) => moveBy(current, selection, dx, dy))}
-              onOpacityPreviewStart={editor.beginPreview}
-              onOpacityPreview={(opacity) => editor.updatePreview((base) => setProperties(base, selection, { opacity }))}
-              onOpacityPreviewEnd={() => editor.endPreview(t('history.opacity'))}
-              onOpacity={(opacity) => setPatch('history.opacity', selection, { opacity })}
-              onBlendMode={(blendMode) => setPatch('history.blend', selection, { blendMode })}
-              onClipping={(clipping) => setPatch('history.clipping', selection, { clipping })}
-              onLocked={(locked) => setPatch('history.lock', selection, { locked })}
-            />
             <div className="tabs" role="tablist">
               {(['layers', 'check', 'history'] as Tab[]).map((name) => (
                 <button key={name} role="tab" aria-selected={tab === name} className={tab === name ? 'tab active' : 'tab'} onClick={() => setTab(name)} data-testid={`tab-${name}`}>
@@ -550,6 +537,19 @@ export function App() {
               ) : null}
               {tab === 'history' && history ? <HistoryPanel history={history} onJump={editor.jump} /> : null}
             </div>
+            <PropertiesPanel
+              document={document}
+              selection={selection}
+              onRename={(id, name) => setPatch('history.rename', [id], { name })}
+              onPosition={(dx, dy) => editor.apply(t('history.position'), (current) => moveBy(current, selection, dx, dy))}
+              onOpacityPreviewStart={editor.beginPreview}
+              onOpacityPreview={(opacity) => editor.updatePreview((base) => setProperties(base, selection, { opacity }))}
+              onOpacityPreviewEnd={() => editor.endPreview(t('history.opacity'))}
+              onOpacity={(opacity) => setPatch('history.opacity', selection, { opacity })}
+              onBlendMode={(blendMode) => setPatch('history.blend', selection, { blendMode })}
+              onClipping={(clipping) => setPatch('history.clipping', selection, { clipping })}
+              onLocked={(locked) => setPatch('history.lock', selection, { locked })}
+            />
           </aside>
         ) : null}
       </main>
