@@ -141,11 +141,21 @@ function drawClippingStack(target: CanvasRenderingContext2D, base: LayerNode, cl
     if (!layer) {
       continue;
     }
-    stackContext.globalAlpha = node.kind === 'layer' ? node.opacity * node.fillOpacity : node.opacity;
+    const blended = blendOntoCopy(stack.surface, layer, node, stack);
     stackContext.globalCompositeOperation = 'source-atop';
-    stackContext.drawImage(layer.surface, layer.left - stack.left, layer.top - stack.top);
+    stackContext.drawImage(blended, 0, 0);
   }
   composite(target, stack, base);
+}
+
+function blendOntoCopy(stackSurface: Surface, layer: RenderTarget, node: LayerNode, stack: RenderTarget): Surface {
+  const copy = createSurface(stackSurface.width, stackSurface.height);
+  const copyContext = context2d(copy);
+  copyContext.drawImage(stackSurface, 0, 0);
+  copyContext.globalAlpha = node.kind === 'layer' ? node.opacity * node.fillOpacity : node.opacity;
+  copyContext.globalCompositeOperation = compositeOperationFor(node.blendMode);
+  copyContext.drawImage(layer.surface, layer.left - stack.left, layer.top - stack.top);
+  return copy;
 }
 
 function composite(target: CanvasRenderingContext2D, rendered: RenderTarget, node: LayerNode) {

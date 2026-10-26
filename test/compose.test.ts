@@ -64,6 +64,20 @@ describe('composeDocument', () => {
     expect(pixelAt(surface, 7, 7)[3]).toBe(0);
   });
 
+  it('applies the blend mode and opacity of clipped layers', () => {
+    const base = testLayer('base', 0, 0, 5, 5, [0, 0, 255, 255]);
+    const multiply = testLayer('multiply', 0, 0, 10, 10, [0, 255, 0, 255], { clipping: true, blendMode: 'multiply' });
+    const surface = composeDocument(testDocument([base, multiply]));
+    expect(pixelAt(surface, 2, 2)).toEqual([0, 0, 0, 255]);
+    expect(pixelAt(surface, 7, 7)[3]).toBe(0);
+
+    const screen = testLayer('screen', 0, 0, 10, 10, [255, 0, 0, 255], { clipping: true, blendMode: 'screen', opacity: 0.5 });
+    const [r, g, b, a] = pixelAt(composeDocument(testDocument([base, screen])), 2, 2);
+    expect(r).toBeGreaterThan(120);
+    expect(r).toBeLessThan(135);
+    expect([g, b, a]).toEqual([0, 255, 255]);
+  });
+
   it('hides clipped layers when the base layer is hidden', () => {
     const base = testLayer('base', 0, 0, 5, 5, [0, 0, 255, 255], { hidden: true });
     const clipped = testLayer('clipped', 0, 0, 10, 10, [255, 0, 0, 255], { clipping: true });
