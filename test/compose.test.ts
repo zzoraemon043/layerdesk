@@ -131,6 +131,19 @@ describe('composeDocument', () => {
     expect(pixelAt(surface, 8, 8)[3]).toBe(0);
   });
 
+  it('applies the mask of a group to its rendered children', () => {
+    const inner = testLayer('inner', 0, 0, 10, 10, [255, 0, 0, 255]);
+    const maskSurface = surfaceFromPixels(2, 2, solidPixels(2, 2, [0, 0, 0, 255]));
+    const group = {
+      ...createGroup('g', [inner]),
+      mask: { left: 4, top: 4, width: 2, height: 2, defaultColor: 0, disabled: false, surface: maskSurface },
+    };
+    const surface = composeDocument(testDocument([group]));
+    expect(pixelAt(surface, 4, 4)).toEqual([255, 0, 0, 255]);
+    expect(pixelAt(surface, 1, 1)[3]).toBe(0);
+    expect(pixelAt(surface, 8, 8)[3]).toBe(0);
+  });
+
   it('clips a layer that sits inside a translated group', () => {
     const base = testLayer('base', 10, 10, 4, 4, [0, 0, 255, 255]);
     const clipped = testLayer('clipped', 8, 8, 10, 10, [0, 255, 0, 255], { clipping: true });

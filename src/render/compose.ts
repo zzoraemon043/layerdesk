@@ -179,7 +179,7 @@ function drawNode(target: CanvasRenderingContext2D, node: LayerNode, renderConte
     drawPlainLayer(target, node);
     return;
   }
-  const rendered = node.kind === 'group' ? groupTarget(node, renderContext) : renderToTarget(node, renderContext);
+  const rendered = node.kind === 'group' && !activeMask(node.mask) ? groupTarget(node, renderContext) : renderToTarget(node, renderContext);
   if (rendered) {
     composite(target, rendered, node);
   }
