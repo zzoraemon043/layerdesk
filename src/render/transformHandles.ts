@@ -9,6 +9,7 @@ export interface ScaleHandle {
 }
 
 const minimumScale = 0.01;
+export const maximumEdge = 8192;
 const rotationSnap = Math.PI / 12;
 
 export function transformedCenter(transform: FreeTransform): Point {
@@ -64,10 +65,15 @@ export function dragScale(start: FreeTransform, sx: Axis, sy: Axis, pointer: Poi
   const halfHeight = start.height / 2;
   const fixed = { x: -sx * halfWidth * start.scaleX, y: -sy * halfHeight * start.scaleY };
   const local = toLocal(start, pointer);
-  let scaleX = sx === 0 ? start.scaleX : Math.max(minimumScale, ((local.x - fixed.x) * sx) / start.width);
-  let scaleY = sy === 0 ? start.scaleY : Math.max(minimumScale, ((local.y - fixed.y) * sy) / start.height);
+  const limitX = Math.max(minimumScale, maximumEdge / start.width);
+  const limitY = Math.max(minimumScale, maximumEdge / start.height);
+  const clampX = (value: number) => (Number.isFinite(value) ? Math.min(limitX, Math.max(minimumScale, value)) : start.scaleX);
+  const clampY = (value: number) => (Number.isFinite(value) ? Math.min(limitY, Math.max(minimumScale, value)) : start.scaleY);
+  let scaleX = sx === 0 ? start.scaleX : clampX(((local.x - fixed.x) * sx) / start.width);
+  let scaleY = sy === 0 ? start.scaleY : clampY(((local.y - fixed.y) * sy) / start.height);
   if (keepRatio) {
-    const factor = sx === 0 ? scaleY / start.scaleY : sy === 0 ? scaleX / start.scaleX : Math.max(scaleX / start.scaleX, scaleY / start.scaleY);
+    const wanted = sx === 0 ? scaleY / start.scaleY : sy === 0 ? scaleX / start.scaleX : Math.max(scaleX / start.scaleX, scaleY / start.scaleY);
+    const factor = Math.min(wanted, limitX / start.scaleX, limitY / start.scaleY);
     scaleX = Math.max(minimumScale, start.scaleX * factor);
     scaleY = Math.max(minimumScale, start.scaleY * factor);
   }

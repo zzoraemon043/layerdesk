@@ -36,6 +36,12 @@ describe('free transform', () => {
     expect([baked.left, baked.top, baked.surface.width, baked.surface.height]).toEqual([15, 7, 4, 2]);
   });
 
+  it('refuses to bake oversized or non-finite transforms', () => {
+    expect(bakeTransform(layer, { ...startTransform(layer), scaleX: 1e7 })).toBeNull();
+    expect(bakeTransform(layer, { ...startTransform(layer), translateX: Number.NaN })).toBeNull();
+    expect(bakeTransform(layer, { ...startTransform(layer), scaleY: Infinity })).toBeNull();
+  });
+
   it('refuses to bake a collapsed transform', () => {
     expect(bakeTransform(layer, { ...startTransform(layer), scaleX: 0 })).toBeNull();
   });

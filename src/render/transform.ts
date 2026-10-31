@@ -16,6 +16,8 @@ export interface FreeTransform {
   translateY: number;
 }
 
+export const maximumBakeEdge = 16384;
+
 export interface Point {
   x: number;
   y: number;
@@ -89,11 +91,14 @@ export function bakeTransform(layer: PixelLayer, transform: FreeTransform): { su
     return null;
   }
   const corners = transformedCorners(transform);
+  if (corners.some((point) => !Number.isFinite(point.x) || !Number.isFinite(point.y))) {
+    return null;
+  }
   const left = Math.floor(Math.min(...corners.map((point) => point.x)));
   const top = Math.floor(Math.min(...corners.map((point) => point.y)));
   const right = Math.ceil(Math.max(...corners.map((point) => point.x)));
   const bottom = Math.ceil(Math.max(...corners.map((point) => point.y)));
-  if (right - left < 1 || bottom - top < 1) {
+  if (right - left < 1 || bottom - top < 1 || right - left > maximumBakeEdge || bottom - top > maximumBakeEdge) {
     return null;
   }
   const surface = createSurface(right - left, bottom - top);

@@ -34,6 +34,17 @@ describe('transform handles', () => {
     expect(transformedCorners(result)[0].x).toBeCloseTo(0);
   });
 
+  it('caps the scale so the result stays a sane size', () => {
+    const free = dragScale(start, 1, 1, { x: 1e9, y: 1e9 }, false);
+    expect(free.scaleX * start.width).toBeLessThanOrEqual(8192);
+    expect(free.scaleY * start.height).toBeLessThanOrEqual(8192);
+    const kept = dragScale(start, 1, 1, { x: 1e9, y: 5 }, true);
+    expect(kept.scaleX).toBeCloseTo(kept.scaleY);
+    expect(kept.scaleY * start.height).toBeLessThanOrEqual(8192);
+    const bad = dragScale(start, 1, 1, { x: Number.NaN, y: 5 }, false);
+    expect(bad.scaleX).toBe(1);
+  });
+
   it('keeps proportions when asked', () => {
     const result = dragScale(start, 1, 1, { x: 30, y: 25 }, true);
     expect(result.scaleX).toBeCloseTo(result.scaleY);
