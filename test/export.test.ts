@@ -17,6 +17,16 @@ describe('layer export', () => {
     expect(safeFileName('a/b:c')).toBe('a_b_c');
     expect(safeFileName('  ')).toBe('layer');
     expect(safeFileName('..')).toBe('layer');
+    expect(safeFileName('arm.')).toBe('arm');
+    expect(safeFileName('a\nb')).toBe('a_b');
+    expect(safeFileName('NUL')).toBe('_NUL');
+    expect(safeFileName('com1.v2')).toBe('_com1.v2');
+    expect(safeFileName('console')).toBe('console');
+  });
+
+  it('does not reuse a path that differs only by case', () => {
+    const doc = testDocument([testLayer('Hand', 0, 0, 2, 2, [1, 2, 3, 255]), testLayer('hand', 0, 0, 2, 2, [1, 2, 3, 255])]);
+    expect(planLayerExport(doc, false).map(({ entry }) => entry.path)).toEqual(['Hand.png', 'hand_2.png']);
   });
 
   it('plans unique paths, skips empty layers and records visibility', () => {

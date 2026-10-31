@@ -23,25 +23,32 @@ export interface LayerManifest {
   layers: LayerEntry[];
 }
 
+const reservedNames = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/i;
+
 export function safeFileName(name: string): string {
-  const cleaned = name.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, ' ').trim();
-  return cleaned === '' || cleaned === '.' || cleaned === '..' ? 'layer' : cleaned;
+  // eslint-disable-next-line no-control-regex
+  const cleaned = name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\s+/g, ' ').replace(/[. ]+$/, '').trim();
+  if (cleaned === '' || cleaned === '.' || cleaned === '..') {
+    return 'layer';
+  }
+  return reservedNames.test(cleaned) ? `_${cleaned}` : cleaned;
 }
 
+// 以小寫比較：Windows、macOS 預設的檔案系統不分大小寫，Hand.png 與 hand.png 解壓會互相覆蓋
 function uniquePath(path: string, used: Set<string>): string {
-  if (!used.has(path)) {
-    used.add(path);
+  if (!used.has(path.toLowerCase())) {
+    used.add(path.toLowerCase());
     return path;
   }
   const extensionIndex = path.lastIndexOf('.');
   const stem = path.slice(0, extensionIndex);
   const extension = path.slice(extensionIndex);
   let counter = 2;
-  while (used.has(`${stem}_${counter}${extension}`)) {
+  while (used.has(`${stem}_${counter}${extension}`.toLowerCase())) {
     counter++;
   }
   const unique = `${stem}_${counter}${extension}`;
-  used.add(unique);
+  used.add(unique.toLowerCase());
   return unique;
 }
 
