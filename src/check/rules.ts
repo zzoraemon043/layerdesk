@@ -76,7 +76,14 @@ function hasEnabledEffects(node: LayerNode): boolean {
   if (!effects || effects.disabled) {
     return false;
   }
-  return Object.entries(effects).some(([key, value]) => key !== 'scale' && key !== 'disabled' && value !== undefined);
+  // Photoshop 會保留使用者關掉的單項效果並標 enabled: false，這種不算效果
+  return Object.entries(effects).some(([key, value]) => {
+    if (key === 'scale' || key === 'disabled' || value === undefined || value === null) {
+      return false;
+    }
+    const items: { enabled?: boolean }[] = Array.isArray(value) ? value : [value];
+    return items.some((item) => item?.enabled !== false);
+  });
 }
 
 function duplicateNameRule(): Rule {

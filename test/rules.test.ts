@@ -39,6 +39,15 @@ describe('rig check rules', () => {
     expect(idsFor([layer])).toEqual([]);
   });
 
+  it('ignores individually disabled effects and empty effect lists', () => {
+    const off = { ...plain(), source: { effects: { dropShadow: [{ enabled: false }], outerGlow: { enabled: false } } } };
+    const empty = { ...plain(), source: { effects: { dropShadow: [] } } };
+    expect(idsFor([off])).toEqual([]);
+    expect(idsFor([empty])).toEqual([]);
+    const mixed = { ...plain(), source: { effects: { dropShadow: [{ enabled: false }], stroke: [{ enabled: true }] } } };
+    expect(idsFor([mixed])).toEqual(['effects']);
+  });
+
   it('detects duplicate names among siblings only', () => {
     const findings = idsFor([plain(), plain(), createGroup('g', [plain()])]);
     expect(findings.filter((id) => id === 'duplicate-name')).toHaveLength(2);
