@@ -191,8 +191,12 @@ export function App() {
       return;
     }
     const fileName = `${baseName(document.fileName)}.png`;
-    if (await saveBlob(await surfaceToBlob(surface), fileName, 'PNG', '.png')) {
-      setStatus({ tone: 'idle', text: t('status.exported', { name: fileName }) });
+    try {
+      if (await saveBlob(await surfaceToBlob(surface), fileName, 'PNG', '.png')) {
+        setStatus({ tone: 'idle', text: t('status.exported', { name: fileName }) });
+      }
+    } catch (error) {
+      setStatus({ tone: 'error', text: t('status.saveError', { message: error instanceof Error ? error.message : String(error) }) });
     }
   }, [document, finalComposite, t]);
 
@@ -202,12 +206,16 @@ export function App() {
         return;
       }
       setStatus({ tone: 'busy', text: t('status.saving') });
-      const zip = await buildLayerZip(document, keepFolders, encodePng);
-      const fileName = `${baseName(document.fileName)}-layers.zip`;
-      if (await saveBlob(new Blob([zip as BlobPart], { type: 'application/zip' }), fileName, 'ZIP', '.zip')) {
-        setStatus({ tone: 'idle', text: t('status.exported', { name: fileName }) });
-      } else {
-        setStatus({ tone: 'idle', text: '' });
+      try {
+        const zip = await buildLayerZip(document, keepFolders, encodePng);
+        const fileName = `${baseName(document.fileName)}-layers.zip`;
+        if (await saveBlob(new Blob([zip as BlobPart], { type: 'application/zip' }), fileName, 'ZIP', '.zip')) {
+          setStatus({ tone: 'idle', text: t('status.exported', { name: fileName }) });
+        } else {
+          setStatus({ tone: 'idle', text: '' });
+        }
+      } catch (error) {
+        setStatus({ tone: 'error', text: t('status.saveError', { message: error instanceof Error ? error.message : String(error) }) });
       }
     },
     [document, t],
