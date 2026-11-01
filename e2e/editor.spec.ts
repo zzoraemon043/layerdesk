@@ -34,6 +34,20 @@ test('drags a layer on the canvas, undoes, redoes and saves the new position', a
   expect(layerNamed(await save(page), 'face')).toMatchObject({ left: 100, top: 30, right: 160, bottom: 90 });
 });
 
+test('ignores the rest of a drag when undo is pressed mid-drag', async ({ page }) => {
+  await openFixture(page);
+  const from = await canvasPoint(page, 100, 50);
+  await page.mouse.click(from.x, from.y);
+  await page.keyboard.press('ArrowRight');
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  await page.mouse.move(from.x + 10, from.y + 5, { steps: 3 });
+  await page.keyboard.press('Control+z');
+  await page.mouse.move(from.x + 30, from.y + 10, { steps: 3 });
+  await page.mouse.up();
+  expect(layerNamed(await save(page), 'face')).toMatchObject({ left: 70, top: 20 });
+});
+
 test('nudges with the keyboard and edits properties', async ({ page }) => {
   await openFixture(page);
   await page.getByTestId('layer-row').filter({ hasText: 'torso' }).click();

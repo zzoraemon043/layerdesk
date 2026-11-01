@@ -28,6 +28,10 @@ export interface Editor {
   cancelTransform(): void;
 }
 
+function withBase(current: History, base: LayerDocument | null): History {
+  return base ? preview(current, base) : current;
+}
+
 export function useEditor(): Editor {
   const [history, setHistory] = useState<History | null>(null);
   const [selection, setSelection] = useState<NodeId[]>([]);
@@ -36,6 +40,12 @@ export function useEditor(): Editor {
   const previewBase = useRef<LayerDocument | null>(null);
 
   const document = history?.present.document ?? null;
+
+  const settlePreview = useCallback((): LayerDocument | null => {
+    const base = previewBase.current;
+    previewBase.current = null;
+    return base;
+  }, []);
 
   const validSelection = useMemo(() => (document ? selection.filter((id) => locate(document, id)) : []), [document, selection]);
 
@@ -47,9 +57,20 @@ export function useEditor(): Editor {
     previewBase.current = null;
   }, []);
 
-  const apply = useCallback((label: string, change: (document: LayerDocument) => LayerDocument) => {
-    setHistory((current) => (current ? commit(current, change(current.present.document), label) : current));
-  }, []);
+
+  const apply = useCallback(
+    (label: string, change: (document: LayerDocument) => LayerDocument) => {
+      const base = settlePreview();
+      setHistory((current) => {
+        if (!current) {
+          return current;
+        }
+        const settled = withBase(current, base);
+        return commit(settled, change(settled.present.document), label);
+      });
+    },
+    [settlePreview],
+  );
 
   const replace = useCallback((change: (document: LayerDocument) => LayerDocument) => {
     setHistory((current) => (current ? preview(current, change(current.present.document)) : current));
@@ -122,16 +143,19 @@ export function useEditor(): Editor {
     updatePreview,
     endPreview,
     undo: () => {
+      const base = settlePreview();
       setTransform(null);
-      setHistory((current) => (current ? undo(current) : current));
+      setHistory((current) => (current ? undo(withBase(current, base)) : current));
     },
     redo: () => {
+      const base = settlePreview();
       setTransform(null);
-      setHistory((current) => (current ? redo(current) : current));
+      setHistory((current) => (current ? redo(withBase(current, base)) : current));
     },
     jump: (index) => {
+      const base = settlePreview();
       setTransform(null);
-      setHistory((current) => (current ? jumpTo(current, index) : current));
+      setHistory((current) => (current ? jumpTo(withBase(current, base), index) : current));
     },
     select,
     markSaved: setSaved,
