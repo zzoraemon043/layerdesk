@@ -5,6 +5,7 @@ import type { MessageKey } from '../i18n/messages';
 import { boundsOf, findNode, unionBounds } from '../model/tree';
 import type { LayerDocument, LayerNode, NodeId } from '../model/types';
 import { editableBlendModes, isBlendModeRendered } from '../render/blend';
+import { parsePositionInput } from './numberInput';
 
 interface PropertiesPanelProps {
   document: LayerDocument;
@@ -63,9 +64,11 @@ function NumberField({ label, value, disabled, onCommit }: { label: string; valu
         defaultValue={value}
         disabled={disabled}
         onBlur={(event) => {
-          const next = Number(event.currentTarget.value);
-          if (Number.isFinite(next) && next !== value) {
-            onCommit(Math.round(next));
+          const next = parsePositionInput(event.currentTarget.value);
+          if (next === null) {
+            event.currentTarget.value = String(value);
+          } else if (next !== value) {
+            onCommit(next);
           }
         }}
         onKeyDown={(event) => {
