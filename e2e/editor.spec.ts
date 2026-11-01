@@ -122,6 +122,15 @@ test('free transform scales a layer and saves the resampled pixels', async ({ pa
   expect((face.right ?? 0) - (face.left ?? 0)).toBeGreaterThan(100);
 });
 
+test('releases the held Space pan mode when the window loses focus', async ({ page }) => {
+  await openFixture(page);
+  const canvas = page.getByTestId('canvas');
+  await page.keyboard.down('Space');
+  await expect(canvas).toHaveCSS('cursor', 'grab');
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await expect(canvas).not.toHaveCSS('cursor', 'grab');
+});
+
 test('runs the rig check and selects the layer of a finding', async ({ page }) => {
   await openFixture(page);
   await page.getByTestId('tab-check').click();

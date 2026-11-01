@@ -98,11 +98,21 @@ export function CanvasView(props: CanvasViewProps) {
         setSpaceHeld(false);
       }
     };
+    const release = () => setSpaceHeld(false);
+    const hide = () => {
+      if (window.document.visibilityState === 'hidden') {
+        setSpaceHeld(false);
+      }
+    };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
+    window.addEventListener('blur', release);
+    window.document.addEventListener('visibilitychange', hide);
     return () => {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', release);
+      window.document.removeEventListener('visibilitychange', hide);
     };
   }, []);
 
