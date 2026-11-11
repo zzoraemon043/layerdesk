@@ -1,3 +1,4 @@
+import { safeFileName } from '../export/layerExport';
 import { isBlendModeRendered } from '../render/blend';
 import { allNodes, boundsOf, walk } from '../model/tree';
 import type { LayerDocument, LayerNode, NodeId, PixelLayer } from '../model/types';
@@ -43,7 +44,6 @@ export interface Rule {
 const both: RigTarget[] = ['live2d', 'spine'];
 export const largeCanvasSize = 8192;
 export const largeLayerSize = 4096;
-const invalidNameCharacters = /[\\/:*?"<>|]/;
 
 function finding(rule: Pick<Rule, 'id' | 'severity'>, node: LayerNode | null, params: Record<string, string | number> = {}): Finding {
   return { ruleId: rule.id, nodeId: node?.id ?? null, nodeName: node?.name ?? '', severity: rule.severity, params };
@@ -177,7 +177,7 @@ export const rules: Rule[] = [
   nodeRule('large-layer', 'info', ['spine'], (node) =>
     pixelLayer(node) && (node.width > largeLayerSize || node.height > largeLayerSize) ? { width: node.width, height: node.height, limit: largeLayerSize } : false,
   ),
-  nodeRule('invalid-name', 'warning', both, (node) => invalidNameCharacters.test(node.name) || node.name !== node.name.trim()),
+  nodeRule('invalid-name', 'warning', both, (node) => node.name.trim() !== '' && safeFileName(node.name) !== node.name),
   nodeRule('blank-name', 'warning', both, (node) => node.name.trim() === ''),
 ];
 

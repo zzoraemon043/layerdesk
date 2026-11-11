@@ -28,6 +28,9 @@ describe('rig check rules', () => {
     ['hidden', { hidden: true }],
     ['invalid-name', { name: 'arm/left' }],
     ['invalid-name', { name: 'arm ' }],
+    ['invalid-name', { name: 'arm.' }],
+    ['invalid-name', { name: 'CON' }],
+    ['invalid-name', { name: 'arm\tleft' }],
     ['blank-name', { name: ' ' }],
     ['unrendered-blend-mode', { blendMode: 'vivid light' }],
   ])('detects %s', (ruleId, extra) => {
